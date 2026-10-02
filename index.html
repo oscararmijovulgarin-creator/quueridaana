@@ -1,0 +1,2074 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Querida Analía</title>
+
+    <!-- Tailwind -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Fuentes -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Dancing+Script:wght@600;700&family=Playfair+Display:ital,wght@0,500;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+
+    <style>
+
+        /* =====================================================
+           VARIABLES
+           ===================================================== */
+
+        :root {
+            --bg-cream: #faf5ef;
+            --rose-soft: #f43f5e;
+            --rose-light: #ffe4e6;
+            --paper: #fffdf7;
+        }
+
+
+        /* =====================================================
+           BODY
+           ===================================================== */
+
+        body {
+            background-color: var(--bg-cream);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            color: #292524;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+
+        .font-serif-romantic {
+            font-family: 'Playfair Display', serif;
+        }
+
+        .font-handwriting {
+            font-family: 'Caveat', cursive;
+        }
+
+        .font-cursive {
+            font-family: 'Dancing Script', cursive;
+        }
+
+
+        /* =====================================================
+           POLAROIDS
+           ===================================================== */
+
+        .polaroid-wrapper {
+            position: relative;
+            width: 100%;
+            height: 280px;
+            perspective: 1000px;
+        }
+
+
+        .polaroid-card {
+            width: 100%;
+            height: 100%;
+
+            position: relative;
+
+            cursor: pointer;
+
+            transition:
+                transform 0.55s ease,
+                box-shadow 0.55s ease,
+                filter 0.8s ease,
+                opacity 0.55s ease;
+        }
+
+
+        .polaroid-face {
+            position: absolute;
+
+            width: 100%;
+            height: 100%;
+
+            border-radius: 8px;
+
+            box-shadow:
+                0 10px 25px -5px rgba(0,0,0,0.1),
+                0 8px 10px -6px rgba(0,0,0,0.05);
+        }
+
+
+        /* =====================================================
+           FRENTE POLAROID
+           ===================================================== */
+
+        .polaroid-front {
+
+            background-color: white;
+
+            padding:
+                12px
+                12px
+                40px
+                12px;
+
+            display: flex;
+            flex-direction: column;
+
+            border: 1px solid #f1f1f1;
+        }
+
+
+        .polaroid-img-container {
+
+            width: 100%;
+            height: 190px;
+
+            overflow: hidden;
+
+            border-radius: 4px;
+
+            background-color: #f3f4f6;
+
+            position: relative;
+        }
+
+
+        .polaroid-img-container img {
+
+            width: 100%;
+            height: 100%;
+
+            object-fit: cover;
+
+            transition:
+                transform 0.6s ease,
+                filter 0.5s ease;
+        }
+
+
+        /* Hover de la foto */
+
+        .polaroid-card.unlocked:hover
+        .polaroid-img-container img {
+
+            transform: scale(1.07);
+
+        }
+
+
+        /* =====================================================
+           PARTE TRASERA ORIGINAL
+           LA DEJAMOS PARA CONSERVAR LA ESTRUCTURA
+           ===================================================== */
+
+        .polaroid-back {
+
+            display: none;
+
+        }
+
+
+        /* =====================================================
+           CARTAS BLOQUEADAS
+           ===================================================== */
+
+        .polaroid-card.locked {
+
+            filter:
+                grayscale(100%)
+                opacity(0.45)
+                contrast(0.85);
+
+            pointer-events: none;
+
+            cursor: not-allowed;
+        }
+
+
+        .polaroid-card.unlocked {
+
+            filter:
+                grayscale(0%)
+                opacity(1)
+                contrast(1);
+
+            pointer-events: auto;
+        }
+
+
+        .polaroid-card.unlocked:hover {
+
+            transform:
+                translateY(-7px)
+                rotate(1deg);
+
+            box-shadow:
+                0 20px 30px -10px
+                rgba(244,63,94,0.2);
+        }
+
+
+        /* =====================================================
+           ANIMACIÓN DE LA FOTO AL ABRIR
+           ===================================================== */
+
+        .polaroid-card.opening-photo {
+
+            animation:
+                photoOpening
+                0.65s
+                ease
+                forwards;
+
+            pointer-events: none;
+        }
+
+
+        @keyframes photoOpening {
+
+            0% {
+
+                transform:
+                    scale(1)
+                    rotate(0deg);
+
+                opacity: 1;
+
+            }
+
+
+            45% {
+
+                transform:
+                    scale(1.10)
+                    rotate(-2deg);
+
+                opacity: 1;
+
+            }
+
+
+            100% {
+
+                transform:
+                    scale(0.88)
+                    rotate(2deg);
+
+                opacity: 0.20;
+
+            }
+
+        }
+
+
+        /* =====================================================
+           FONDO OSCURO
+           ===================================================== */
+
+        #backdrop {
+
+            position: fixed;
+
+            inset: 0;
+
+            background:
+                rgba(25, 17, 20, 0.72);
+
+            backdrop-filter:
+                blur(7px);
+
+            opacity: 0;
+
+            pointer-events: none;
+
+            transition:
+                opacity 0.45s ease;
+
+            z-index: 90;
+        }
+
+
+        #backdrop.active {
+
+            opacity: 1;
+
+            pointer-events: auto;
+
+        }
+
+
+        /* =====================================================
+           MODAL DE LA CARTA
+           ===================================================== */
+
+        #letter-modal {
+
+            position: fixed;
+
+            inset: 0;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            padding: 25px;
+
+            opacity: 0;
+
+            pointer-events: none;
+
+            transition:
+                opacity 0.35s ease;
+
+            z-index: 120;
+        }
+
+
+        #letter-modal.active {
+
+            opacity: 1;
+
+            pointer-events: auto;
+
+        }
+
+
+        /* =====================================================
+           PAPEL
+           ===================================================== */
+
+        #letter-paper {
+
+            position: relative;
+
+            width: min(90vw, 620px);
+
+            height: min(82vh, 720px);
+
+            overflow: hidden;
+
+            background-color:
+                var(--paper);
+
+            border-radius: 4px;
+
+            border:
+                1px solid #e7dfd2;
+
+            box-shadow:
+                0 35px 80px
+                rgba(0,0,0,0.35);
+
+            transform:
+                translateY(80px)
+                scale(0.70)
+                rotate(-5deg);
+
+            opacity: 0;
+
+            transition:
+                transform 0.75s
+                cubic-bezier(0.17,1.2,0.32,1),
+
+                opacity 0.45s ease;
+
+        }
+
+
+        #letter-modal.active #letter-paper {
+
+            transform:
+                translateY(0)
+                scale(1)
+                rotate(0deg);
+
+            opacity: 1;
+
+        }
+
+
+        /* =====================================================
+           EFECTO PAPEL
+           ===================================================== */
+
+        #letter-paper::before {
+
+            content: "";
+
+            position: absolute;
+
+            left: 58px;
+
+            top: 0;
+
+            bottom: 0;
+
+            width: 1px;
+
+            background:
+                rgba(244,63,94,0.18);
+
+            pointer-events: none;
+        }
+
+
+        #letter-paper::after {
+
+            content: "";
+
+            position: absolute;
+
+            inset: 0;
+
+            pointer-events: none;
+
+            background:
+
+                linear-gradient(
+                    to bottom,
+                    rgba(255,255,255,0.35),
+                    transparent 15%
+                ),
+
+                repeating-linear-gradient(
+                    to bottom,
+                    transparent 0px,
+                    transparent 31px,
+                    rgba(120,113,108,0.10) 32px
+                );
+
+            opacity: 0.8;
+        }
+
+
+        /* =====================================================
+           CONTENIDO DE LA CARTA
+           ===================================================== */
+
+        .letter-content {
+
+            position: relative;
+
+            z-index: 2;
+
+            height: 100%;
+
+            padding:
+                50px
+                55px
+                35px
+                85px;
+
+            display: flex;
+
+            flex-direction: column;
+
+        }
+
+
+        /* =====================================================
+           BOTÓN X
+           ===================================================== */
+
+        #close-letter {
+
+            position: absolute;
+
+            top: 14px;
+
+            right: 16px;
+
+            z-index: 10;
+
+            width: 38px;
+
+            height: 38px;
+
+            border-radius: 50%;
+
+            border: 1px solid #f0d9dc;
+
+            background:
+                rgba(255,255,255,0.85);
+
+            color:
+                #e11d48;
+
+            font-size: 25px;
+
+            line-height: 1;
+
+            cursor: pointer;
+
+            transition:
+                transform 0.25s ease,
+                background 0.25s ease;
+
+        }
+
+
+        #close-letter:hover {
+
+            transform:
+                rotate(90deg)
+                scale(1.08);
+
+            background:
+                #ffe4e6;
+        }
+
+
+        /* =====================================================
+           TEXTO CARTA
+           ===================================================== */
+
+        #letter-number {
+
+            font-family:
+                'Plus Jakarta Sans',
+                sans-serif;
+
+            font-size: 11px;
+
+            font-weight: 600;
+
+            letter-spacing: 3px;
+
+            text-transform: uppercase;
+
+            color:
+                #f43f5e;
+
+            margin-bottom: 5px;
+        }
+
+
+        #letter-title {
+
+            font-family:
+                'Dancing Script',
+                cursive;
+
+            font-size:
+                clamp(32px, 7vw, 48px);
+
+            color:
+                #292524;
+
+            margin-bottom: 20px;
+
+            line-height: 1.1;
+        }
+
+
+        #letter-message {
+
+            font-family:
+                'Caveat',
+                cursive;
+
+            font-size:
+                clamp(25px, 4vw, 33px);
+
+            line-height: 1.42;
+
+            color:
+                #44403c;
+
+            overflow-y: auto;
+
+            padding-right: 10px;
+
+            flex: 1;
+        }
+
+
+        /* =====================================================
+           FIRMA
+           ===================================================== */
+
+        .letter-signature {
+
+            font-family:
+                'Dancing Script',
+                cursive;
+
+            font-size:
+                28px;
+
+            color:
+                #57534e;
+
+            margin-top: 20px;
+
+        }
+
+
+        /* =====================================================
+           BOTÓN GUARDAR
+           ===================================================== */
+
+        #save-letter {
+
+            margin-top: 18px;
+
+            border: none;
+
+            background:
+                #f43f5e;
+
+            color: white;
+
+            font-size: 14px;
+
+            font-weight: 500;
+
+            padding: 13px 22px;
+
+            border-radius: 999px;
+
+            cursor: pointer;
+
+            box-shadow:
+                0 8px 18px
+                rgba(244,63,94,0.22);
+
+            transition:
+                transform 0.25s ease,
+                background 0.25s ease;
+
+        }
+
+
+        #save-letter:hover {
+
+            background:
+                #e11d48;
+
+            transform:
+                translateY(-2px);
+
+        }
+
+
+        /* =====================================================
+           ESQUINAS DECORATIVAS
+           ===================================================== */
+
+        .paper-heart {
+
+            position: absolute;
+
+            z-index: 3;
+
+            font-size: 24px;
+
+            opacity: 0.65;
+
+        }
+
+
+        .paper-heart.one {
+
+            top: 28px;
+
+            left: 25px;
+
+            transform:
+                rotate(-15deg);
+
+        }
+
+
+        .paper-heart.two {
+
+            bottom: 25px;
+
+            right: 25px;
+
+            transform:
+                rotate(12deg);
+
+        }
+
+
+        /* =====================================================
+           TYPEWRITER
+           ===================================================== */
+
+        .type-word {
+
+            display: inline-block;
+
+            opacity: 0;
+
+            transform:
+                translateY(8px);
+
+            transition:
+                opacity 0.3s ease,
+                transform 0.3s ease;
+
+            margin-right:
+                0.25em;
+        }
+
+
+        .type-word.visible {
+
+            opacity: 1;
+
+            transform:
+                translateY(0);
+        }
+
+
+        /* =====================================================
+           PULSE
+           ===================================================== */
+
+        @keyframes pulseGlow {
+
+            0%,100% {
+
+                box-shadow:
+                    0 0 0 0
+                    rgba(244,63,94,0.4);
+
+            }
+
+            50% {
+
+                box-shadow:
+                    0 0 0 12px
+                    rgba(244,63,94,0);
+
+            }
+
+        }
+
+
+        .just-unlocked {
+
+            animation:
+                pulseGlow
+                1.8s
+                infinite
+                ease-in-out;
+        }
+
+
+        /* =====================================================
+           RESPONSIVE
+           ===================================================== */
+
+        @media (max-width: 640px) {
+
+            .polaroid-wrapper {
+
+                height: 240px;
+
+            }
+
+
+            .polaroid-img-container {
+
+                height: 160px;
+
+            }
+
+
+            #letter-paper {
+
+                width: 92vw;
+
+                height: 82vh;
+
+            }
+
+
+            .letter-content {
+
+                padding:
+                    45px
+                    25px
+                    25px
+                    55px;
+
+            }
+
+
+            #letter-paper::before {
+
+                left: 38px;
+
+            }
+
+
+            #letter-message {
+
+                font-size:
+                    24px;
+
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body class="flex flex-col items-center justify-center relative min-h-screen p-4 select-none">
+
+
+    <!-- =====================================================
+         AUDIO
+         ===================================================== -->
+
+    <audio
+        id="audio-lara"
+        src="AUDIO_LARA_JEAN.mp3"
+        preload="auto">
+    </audio>
+
+
+    <audio
+        id="audio-fondo"
+        src="AUDIO_LARA_JEAN.mp3"
+        loop
+        preload="auto">
+    </audio>
+
+
+    <!-- =====================================================
+         CONTROL AUDIO
+         ===================================================== -->
+
+    <div
+        id="audio-control"
+        class="fixed top-4 right-4 z-50 hidden">
+
+        <button
+            id="toggle-audio-btn"
+            class="bg-white/80 backdrop-blur-md border border-rose-200 text-rose-600 px-3 py-1.5 rounded-full text-xs font-medium shadow-sm hover:bg-rose-50 transition flex items-center gap-1.5">
+
+            <svg
+                id="music-icon"
+                class="w-4 h-4 animate-spin"
+                style="animation-duration:4s;"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24">
+
+                <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M9 19V6l12-2v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12 0c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-2">
+                </path>
+
+            </svg>
+
+            <span id="audio-status-text">
+                Música Sonando
+            </span>
+
+        </button>
+
+    </div>
+
+
+    <!-- =====================================================
+         FONDO OSCURO
+         ===================================================== -->
+
+    <div id="backdrop"></div>
+
+
+    <!-- =====================================================
+         CARTA QUE APARECE
+         ===================================================== -->
+
+    <div id="letter-modal">
+
+        <div id="letter-paper">
+
+            <button id="close-letter">
+                ×
+            </button>
+
+
+            <span class="paper-heart one">
+                ♡
+            </span>
+
+
+            <span class="paper-heart two">
+                ♥
+            </span>
+
+
+            <div class="letter-content">
+
+                <span id="letter-number">
+                    CARTA 01
+                </span>
+
+
+                <h2 id="letter-title">
+                    El comienzo ✨
+                </h2>
+
+
+                <div id="letter-message">
+                    Querida Analía, desde el primer momento en que te vi supe que eras alguien extraordinaria. Gracias por llenar mis días de luz.
+                </div>
+
+
+                <div class="letter-signature">
+                    Con cariño,<br>
+                    Óscar ♥
+                </div>
+
+
+                <button id="save-letter">
+                    Guardar carta
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         PANTALLA INICIAL
+         ===================================================== -->
+
+    <section
+        id="start-screen"
+        class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#faf5ef] px-6 text-center transition-opacity duration-700">
+
+        <div
+            class="max-w-md bg-white/90 backdrop-blur-sm p-8 rounded-3xl shadow-xl border border-rose-100 flex flex-col items-center">
+
+
+            <div
+                class="w-16 h-16 bg-rose-100 text-rose-500 rounded-full flex items-center justify-center mb-5 shadow-inner">
+
+                <svg
+                    class="w-8 h-8"
+                    fill="currentColor"
+                    viewBox="0 0 24 24">
+
+                    <path
+                        d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+
+                </svg>
+
+            </div>
+
+
+            <h1
+                class="text-3xl font-serif-romantic text-stone-800 mb-2">
+
+                Un mensaje especial
+
+            </h1>
+
+
+            <p class="text-stone-500 text-sm mb-6">
+
+                Sube el volumen de tu dispositivo para la experiencia completa.
+
+            </p>
+
+
+            <button
+                id="start-btn"
+                class="w-full bg-rose-500 hover:bg-rose-600 text-white font-medium py-3.5 px-8 rounded-full shadow-lg shadow-rose-200 hover:shadow-rose-300 transition-all transform active:scale-95 flex items-center justify-center gap-2 text-base">
+
+                <span>
+                    Toca para abrir la carta
+                </span>
+
+
+                <svg
+                    class="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24">
+
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M14 5l7 7m0 0l-7 7m7-7H3">
+                    </path>
+
+                </svg>
+
+            </button>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         INTRO
+         ===================================================== -->
+
+    <section
+        id="intro-screen"
+        class="fixed inset-0 z-40 hidden flex flex-col items-center justify-center bg-[#faf5ef] px-6 text-center transition-opacity duration-700">
+
+        <div class="max-w-xl mx-auto space-y-6">
+
+            <h2
+                id="intro-title"
+                class="text-4xl md:text-5xl font-serif-romantic text-rose-600 italic tracking-wide opacity-0 transition-opacity duration-1000">
+
+                Querida Analía,
+
+            </h2>
+
+
+            <div
+                id="typewriter-container"
+                class="text-xl md:text-2xl font-serif-romantic text-stone-700 italic leading-relaxed min-h-[80px]">
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         CONTENIDO PRINCIPAL
+         ===================================================== -->
+
+    <main
+        id="main-screen"
+        class="w-full max-w-2xl mx-auto hidden flex-col items-center py-8 px-4 opacity-0 transition-opacity duration-1000">
+
+
+        <header class="text-center mb-8">
+
+            <span class="text-rose-500 font-cursive text-2xl">
+                Para la persona más especial
+            </span>
+
+
+            <h2
+                class="text-3xl md:text-4xl font-serif-romantic text-stone-800 mt-1">
+
+                Memorias & Cartas
+
+            </h2>
+
+
+            <p
+                class="text-xs text-stone-400 mt-1 uppercase tracking-widest font-medium">
+
+                Haz clic en cada polaroid para abrir
+
+            </p>
+
+        </header>
+
+
+        <!-- =================================================
+             GRID
+             ================================================= -->
+
+        <div
+            class="grid grid-cols-2 gap-4 md:gap-8 w-full max-w-lg mx-auto">
+
+
+            <!-- =================================================
+                 CARD 1
+                 ================================================= -->
+
+            <div class="polaroid-wrapper">
+
+                <div
+                    class="polaroid-card unlocked just-unlocked"
+                    id="card-1"
+                    data-card="1">
+
+                    <div class="polaroid-face polaroid-front">
+
+                        <div class="polaroid-img-container">
+
+                            <img
+                                src="foto1.jpeg"
+                                alt="Recuerdo 1">
+
+                        </div>
+
+
+                        <p
+                            class="font-handwriting text-2xl text-stone-700 mt-auto text-center">
+
+                            I. ¿Cómo?
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 CARD 2
+                 ================================================= -->
+
+            <div class="polaroid-wrapper">
+
+                <div
+                    class="polaroid-card locked"
+                    id="card-2"
+                    data-card="2">
+
+                    <div class="polaroid-face polaroid-front">
+
+                        <div class="polaroid-img-container">
+
+                            <img
+                                src="foto2.jpeg"
+                                alt="Recuerdo 2">
+
+                        </div>
+
+
+                        <p
+                            class="font-handwriting text-2xl text-stone-700 mt-auto text-center">
+
+                            II. ¿Por qué?
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 CARD 3
+                 ================================================= -->
+
+            <div class="polaroid-wrapper">
+
+                <div
+                    class="polaroid-card locked"
+                    id="card-3"
+                    data-card="3">
+
+                    <div class="polaroid-face polaroid-front">
+
+                        <div class="polaroid-img-container">
+
+                            <img
+                                src="foto3.jpeg"
+                                alt="Recuerdo 3">
+
+                        </div>
+
+
+                        <p
+                            class="font-handwriting text-2xl text-stone-700 mt-auto text-center">
+
+                            III. Recuerdos
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 CARD 4
+                 ================================================= -->
+
+            <div class="polaroid-wrapper">
+
+                <div
+                    class="polaroid-card locked"
+                    id="card-4"
+                    data-card="4">
+
+                    <div class="polaroid-face polaroid-front">
+
+                        <div class="polaroid-img-container">
+
+                            <img
+                                src="foto4.jpeg"
+                                alt="Recuerdo 4">
+
+                        </div>
+
+
+                        <p
+                            class="font-handwriting text-2xl text-stone-700 mt-auto text-center">
+
+                            IV. Futuro
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             FOOTER
+             ================================================= -->
+
+        <footer class="mt-10 text-center">
+
+            <p
+                class="text-xs text-stone-400 font-handwriting text-lg">
+
+                Hecho con ♥ para Analía
+
+            </p>
+
+        </footer>
+
+    </main>
+
+
+    <!-- =====================================================
+         JAVASCRIPT
+         ===================================================== -->
+
+    <script>
+
+        document.addEventListener(
+            'DOMContentLoaded',
+            () => {
+
+
+            /* =================================================
+               ELEMENTOS
+               ================================================= */
+
+            const startScreen =
+                document.getElementById(
+                    'start-screen'
+                );
+
+
+            const startBtn =
+                document.getElementById(
+                    'start-btn'
+                );
+
+
+            const introScreen =
+                document.getElementById(
+                    'intro-screen'
+                );
+
+
+            const introTitle =
+                document.getElementById(
+                    'intro-title'
+                );
+
+
+            const typewriterContainer =
+                document.getElementById(
+                    'typewriter-container'
+                );
+
+
+            const mainScreen =
+                document.getElementById(
+                    'main-screen'
+                );
+
+
+            const backdrop =
+                document.getElementById(
+                    'backdrop'
+                );
+
+
+            /* =================================================
+               AUDIO
+               ================================================= */
+
+            const audioLara =
+                document.getElementById(
+                    'audio-lara'
+                );
+
+
+            const audioFondo =
+                document.getElementById(
+                    'audio-fondo'
+                );
+
+
+            const audioControl =
+                document.getElementById(
+                    'audio-control'
+                );
+
+
+            const toggleAudioBtn =
+                document.getElementById(
+                    'toggle-audio-btn'
+                );
+
+
+            const audioStatusText =
+                document.getElementById(
+                    'audio-status-text'
+                );
+
+
+            let currentAudio = null;
+
+
+            /* =================================================
+               CARTA
+               ================================================= */
+
+            const letterModal =
+                document.getElementById(
+                    'letter-modal'
+                );
+
+
+            const letterNumber =
+                document.getElementById(
+                    'letter-number'
+                );
+
+
+            const letterTitle =
+                document.getElementById(
+                    'letter-title'
+                );
+
+
+            const letterMessage =
+                document.getElementById(
+                    'letter-message'
+                );
+
+
+            const closeLetter =
+                document.getElementById(
+                    'close-letter'
+                );
+
+
+            const saveLetter =
+                document.getElementById(
+                    'save-letter'
+                );
+
+
+            /* =================================================
+               CARTAS
+               ================================================= */
+
+            const letterData = {
+
+                1: {
+
+                    number: "CARTA 01",
+
+                    title: "¿Cómo me enamoré de ti?",
+
+                    message:
+                        "En décimo me parecias una chica muy linda, tierna como siempre has sido y también inteligentisimaaaaaaa, además de que tenía una confianza fabulosa contigo, solo que pues en décimo como que era medio tontin y ya pues, no se pudieron dar las cosas. En segundo, la verdad es que yo me sentaba con Victor y ni en mente que iba a volver a sentir lo mismo que en décimo, todo fue por un trabajo en una cartulina de la materia de biología, yo hablé con vos, y pues quedé flechado de nuevo, siento que tus ojos le hicieron brujería a mi corazón, y no solo tus ojos, tu voz, todo de ti, la sonrisa, la manera en la que miras, todoooooo."                       
+
+                },
+
+
+                2: {
+
+                    number: "CARTA 02",
+
+                    title: "¿Por qué me enamoré de ti?",
+
+                    message:
+                        "Siempre diré que la cosa más fácil que he hecho fue enamorarme de ti, linda siempre fuiste, pero hay algo mássss, la manera en que yo te veo y como eres vosss, es que yo te veo perfecta, enserio, para que entiendas de mejor manera, vos cuando estornudas, estornudas de una manera tan tierna, pareces sacada de mi mejor sueño Ana y eso que no sueño, me acuerdo cuando vos me decias que te idealizaba, pues hasta el día de hoy no veo que te idealizo, porque como te veo, para mi corazón, para mis ojos, para mi alma, dentro de tus imperfecciones que puedes percatarte vos, para mi eres perfecta, y en el primer momento que te dirigí la palabra, inicié a sentir eso poco a poco. Cuando realmente me dije a mi mismo, tipo -la quiero para mi vida- es cuando me agarraste la mano por primera vez, nunca había sentido el mismo calor que sentí, y no me importa si sudas en la mano o no, la verdad que para mi es lo de menos, porque como dije, para mi, eres perfección."
+
+                },
+
+
+                3: {
+
+                    number: "CARTA 03",
+
+                    title: "Recuerdos juntos",
+
+                    message:
+                        "Aunque tengamos todavía poca duración de relación, los momentos que he vivido contigo, me parecen únicos, prácticamente todos los días que te veo, hay días en donde podemo vernos más tiempo y sin interrupción, como cuando voy a tu casita, o fuimos a rukito, pero no desmerita otros días que te veo, me acuerdo de la vez que había faltado Arelys en segundo año, y justo ese día como que no hicimos muchas actividades, y vos me dijiste que estabas muy feliz de haber pasado tiempo conmigo, cosas así las aprecio, porque se que puedo hacerte sentir bien. Es uno de los tantos recuerdos que tengo guardados en mi mente, y que me encantaría contarlos una vez ya llegados a viejitos y nos cueste recordar jajsdkaa."
+
+                },
+
+
+                4: {
+
+                    number: "CARTA 04",
+
+                    title: "¿Qué quiero en el futuro CON VOSSSSS?",
+
+                    message:
+                        "Ojalá que dentro de un futuro, ya graduados pase lo siguiente, me meto a la espol, vos también estudias tu carrera, en otra universidad o eliges alguna otra profesión en alguna institución, que mantengamos contacto, y que no terminemos aunque nos separe la distancia, que mientras yo estudie, esté trabajando, para poder verte mínimo una vez al mes, para invitarte a pasear y a hacer muchas cosas juntos, una vez ya terminado nuestros estudios o profesión, con un trabajo ya fijo, podamos conseguir nuestros sueño y que salga todo con exito, reunir para comprarnos una casita, casarnos y quien sabe muchas cositasss massss, se que no quieres hijo pero insistiré jajajaja, igual si ya no se puedo pues noooo. Se me olvidaba de mencionar, que también al tener todo, viajemos muchooo, dentro y fuera del país, dónde sea, pero siempre con vos."
+
+                }
+
+            };
+
+
+            /* =================================================
+               REPRODUCIR AUDIO
+               ================================================= */
+
+            function safePlayAudio(
+                audioElement
+            ) {
+
+                if (!audioElement) return;
+
+
+                currentAudio =
+                    audioElement;
+
+
+                audioElement.play()
+                    .then(() => {
+
+                        audioControl
+                            .classList
+                            .remove('hidden');
+
+                    })
+                    .catch(err => {
+
+                        console.log(
+                            "Aviso de audio:",
+                            err
+                        );
+
+                    });
+
+            }
+
+
+            /* =================================================
+               AUDIO TERMINADO
+               ================================================= */
+
+            audioLara.addEventListener(
+                'ended',
+                () => {
+
+                    safePlayAudio(
+                        audioFondo
+                    );
+
+                }
+            );
+
+
+            /* =================================================
+               BOTÓN AUDIO
+               ================================================= */
+
+            toggleAudioBtn.addEventListener(
+                'click',
+                () => {
+
+                    if (!currentAudio)
+                        return;
+
+
+                    if (
+                        currentAudio.paused
+                    ) {
+
+                        currentAudio
+                            .play();
+
+                        audioStatusText
+                            .textContent =
+                            "Música Sonando";
+
+                    } else {
+
+                        currentAudio
+                            .pause();
+
+                        audioStatusText
+                            .textContent =
+                            "Música Pausada";
+
+                    }
+
+                }
+            );
+
+
+            /* =================================================
+               START
+               ================================================= */
+
+            startBtn.addEventListener(
+                'click',
+                startExperience
+            );
+
+
+            startScreen.addEventListener(
+                'click',
+                e => {
+
+                    if (
+                        e.target ===
+                        startScreen ||
+                        startScreen.contains(
+                            e.target
+                        )
+                    ) {
+
+                        startExperience();
+
+                    }
+
+                }
+            );
+
+
+            let started = false;
+
+
+            function startExperience() {
+
+                if (started)
+                    return;
+
+
+                started = true;
+
+
+                safePlayAudio(
+                    audioLara
+                );
+
+
+                startScreen.style.opacity =
+                    '0';
+
+
+                setTimeout(
+                    () => {
+
+                        startScreen
+                            .classList
+                            .add('hidden');
+
+
+                        introScreen
+                            .classList
+                            .remove('hidden');
+
+
+                        setTimeout(
+                            () => {
+
+                                introTitle
+                                    .classList
+                                    .remove(
+                                        'opacity-0'
+                                    );
+
+                            },
+                            100
+                        );
+
+
+                        runTypewriterAnimation();
+
+                    },
+                    700
+                );
+
+            }
+
+
+            /* =================================================
+               TYPEWRITER
+               ================================================= */
+
+            function runTypewriterAnimation() {
+
+                const phrase =
+                    "me dijiste que escribiera algo memorable asi que aqui está,";
+
+
+                const words =
+                    phrase.split(" ");
+
+
+                typewriterContainer.innerHTML =
+                    "";
+
+
+                words.forEach(
+                    word => {
+
+                        const span =
+                            document.createElement(
+                                'span'
+                            );
+
+
+                        span.className =
+                            'type-word';
+
+
+                        span.textContent =
+                            word;
+
+
+                        typewriterContainer
+                            .appendChild(
+                                span
+                            );
+
+                    }
+                );
+
+
+                const wordElements =
+                    typewriterContainer
+                    .querySelectorAll(
+                        '.type-word'
+                    );
+
+
+                const intervalTime =
+                    220;
+
+
+                wordElements.forEach(
+                    (el, index) => {
+
+                        setTimeout(
+                            () => {
+
+                                el.classList
+                                    .add(
+                                        'visible'
+                                    );
+
+                            },
+                            index *
+                            intervalTime
+                        );
+
+                    }
+                );
+
+
+                setTimeout(
+                    () => {
+
+                        introScreen.style.opacity =
+                            '0';
+
+
+                        setTimeout(
+                            () => {
+
+                                introScreen
+                                    .classList
+                                    .add('hidden');
+
+
+                                mainScreen
+                                    .classList
+                                    .remove(
+                                        'hidden'
+                                    );
+
+
+                                setTimeout(
+                                    () => {
+
+                                        mainScreen
+                                            .classList
+                                            .remove(
+                                                'opacity-0'
+                                            );
+
+                                    },
+                                    50
+                                );
+
+                            },
+                            700
+                        );
+
+                    },
+                    4000
+                );
+
+            }
+
+
+            /* =================================================
+               CARTAS / POLAROIDS
+               ================================================= */
+
+            const cards =
+                document.querySelectorAll(
+                    '.polaroid-card'
+                );
+
+
+            let activeCard = null;
+
+
+            /* =================================================
+               CLICK EN POLAROID
+               ================================================= */
+
+            cards.forEach(
+                card => {
+
+                    card.addEventListener(
+                        'click',
+                        () => {
+
+                            if (
+                                card.classList
+                                    .contains(
+                                        'locked'
+                                    )
+                            ) {
+
+                                return;
+
+                            }
+
+
+                            if (
+                                activeCard
+                            ) {
+
+                                return;
+
+                            }
+
+
+                            openCard(card);
+
+                        }
+                    );
+
+                }
+            );
+
+
+            /* =================================================
+               ABRIR CARTA
+               ================================================= */
+
+            function openCard(card) {
+
+                activeCard =
+                    card;
+
+
+                const cardNum =
+                    parseInt(
+                        card.getAttribute(
+                            'data-card'
+                        )
+                    );
+
+
+                const data =
+                    letterData[
+                        cardNum
+                    ];
+
+
+                /* =============================================
+                   COLOCAR INFORMACIÓN
+                   ============================================= */
+
+                letterNumber
+                    .textContent =
+                    data.number;
+
+
+                letterTitle
+                    .textContent =
+                    data.title;
+
+
+                letterMessage
+                    .textContent =
+                    data.message;
+
+
+                /* =============================================
+                   QUITAR BRILLO
+                   ============================================= */
+
+                card.classList.remove(
+                    'just-unlocked'
+                );
+
+
+                /* =============================================
+                   ANIMAR FOTO
+                   ============================================= */
+
+                card.classList.add(
+                    'opening-photo'
+                );
+
+
+                /* =============================================
+                   OSCURECER FONDO
+                   ============================================= */
+
+                backdrop.classList.add(
+                    'active'
+                );
+
+
+                /* =============================================
+                   PEQUEÑA ESPERA
+                   Y SALE EL PAPEL
+                   ============================================= */
+
+                setTimeout(
+                    () => {
+
+                        letterModal
+                            .classList
+                            .add('active');
+
+
+                    },
+                    230
+                );
+
+            }
+
+
+            /* =================================================
+               CERRAR DESDE X
+               ================================================= */
+
+            closeLetter.addEventListener(
+                'click',
+                e => {
+
+                    e.stopPropagation();
+
+                    closeActiveCard();
+
+                }
+            );
+
+
+            /* =================================================
+               BOTÓN GUARDAR CARTA
+               ================================================= */
+
+            saveLetter.addEventListener(
+                'click',
+                e => {
+
+                    e.stopPropagation();
+
+                    closeActiveCard();
+
+                }
+            );
+
+
+            /* =================================================
+               CLICK FUERA DEL PAPEL
+               ================================================= */
+
+            letterModal.addEventListener(
+                'click',
+                e => {
+
+                    if (
+                        e.target ===
+                        letterModal
+                    ) {
+
+                        closeActiveCard();
+
+                    }
+
+                }
+            );
+
+
+            /* =================================================
+               CLICK EN BACKDROP
+               ================================================= */
+
+            backdrop.addEventListener(
+                'click',
+                () => {
+
+                    if (activeCard) {
+
+                        closeActiveCard();
+
+                    }
+
+                }
+            );
+
+
+            /* =================================================
+               CERRAR CARTA
+               ================================================= */
+
+            function closeActiveCard() {
+
+                if (!activeCard)
+                    return;
+
+
+                const card =
+                    activeCard;
+
+
+                const cardNum =
+                    parseInt(
+                        card.getAttribute(
+                            'data-card'
+                        )
+                    );
+
+
+                /* =============================================
+                   CERRAR PAPEL
+                   ============================================= */
+
+                letterModal
+                    .classList
+                    .remove(
+                        'active'
+                    );
+
+
+                backdrop
+                    .classList
+                    .remove(
+                        'active'
+                    );
+
+
+                /* =============================================
+                   ESPERAR ANIMACIÓN
+                   ============================================= */
+
+                setTimeout(
+                    () => {
+
+                        card.classList.remove(
+                            'opening-photo'
+                        );
+
+
+                        activeCard =
+                            null;
+
+
+                        /* ==============================
+                           DESBLOQUEAR SIGUIENTE
+                           ============================== */
+
+                        const nextCardNum =
+                            cardNum + 1;
+
+
+                        const nextCard =
+                            document.getElementById(
+                                `card-${nextCardNum}`
+                            );
+
+
+                        if (
+                            nextCard &&
+                            nextCard.classList
+                                .contains(
+                                    'locked'
+                                )
+                        ) {
+
+                            setTimeout(
+                                () => {
+
+                                    nextCard
+                                        .classList
+                                        .remove(
+                                            'locked'
+                                        );
+
+
+                                    nextCard
+                                        .classList
+                                        .add(
+                                            'unlocked',
+                                            'just-unlocked'
+                                        );
+
+                                },
+                                350
+                            );
+
+                        }
+
+                    },
+                    650
+                );
+
+            }
+
+
+        });
+
+    </script>
+
+</body>
+</html>
